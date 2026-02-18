@@ -1,0 +1,691 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>NationCraft 3D</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Share+Tech+Mono&display=swap');
+*{margin:0;padding:0;box-sizing:border-box}
+body{background:#0a0e1a;font-family:'Share Tech Mono',monospace;color:#e0f0ff;overflow:hidden;user-select:none}
+#cc{position:fixed;inset:0}canvas{display:block}
+#hud{position:fixed;inset:0;pointer-events:none}
+#topbar{position:absolute;top:0;left:0;right:0;height:52px;background:linear-gradient(180deg,rgba(4,8,22,.99),rgba(4,8,22,.88));border-bottom:1px solid rgba(0,200,255,.18);display:flex;align-items:center;padding:0 12px;gap:8px;pointer-events:all;overflow:hidden}
+#gt{font-family:'Orbitron',sans-serif;font-weight:900;font-size:15px;color:#00cfff;text-shadow:0 0 16px rgba(0,207,255,.7);letter-spacing:3px;white-space:nowrap;margin-right:4px}
+.res{display:flex;align-items:center;gap:4px;padding:3px 8px;background:rgba(0,207,255,.07);border:1px solid rgba(0,207,255,.17);border-radius:4px;font-size:11px;white-space:nowrap}
+.res .ico{font-size:13px}.res .rv{color:#00cfff;font-weight:bold;min-width:32px}.res .rl{color:rgba(200,220,255,.42);font-size:9px}
+.rp{color:#00ff88!important}.rn{color:#ff4466!important}
+#yr{font-family:'Orbitron',sans-serif;font-size:11px;color:rgba(200,220,255,.7);padding:3px 8px;background:rgba(0,207,255,.05);border:1px solid rgba(0,207,255,.13);border-radius:4px;white-space:nowrap;margin-left:auto}
+#sb{position:absolute;top:58px;right:14px;font-size:10px;background:rgba(5,10,25,.88);border:1px solid rgba(0,207,255,.2);border-radius:4px;padding:3px 8px;pointer-events:none}
+#bp{position:absolute;left:12px;top:58px;bottom:12px;width:188px;background:rgba(4,8,22,.95);border:1px solid rgba(0,207,255,.18);border-radius:8px;display:flex;flex-direction:column;pointer-events:all;overflow:hidden}
+#bp h3{font-family:'Orbitron',sans-serif;font-size:10px;letter-spacing:2px;color:#00cfff;padding:9px 11px 6px;border-bottom:1px solid rgba(0,207,255,.12)}
+.bc{padding:6px 8px 2px;font-size:9px;letter-spacing:2px;color:rgba(200,220,255,.38);text-transform:uppercase}
+.bb{margin:2px 5px;padding:5px 7px;background:rgba(0,207,255,.05);border:1px solid rgba(0,207,255,.12);border-radius:4px;cursor:pointer;transition:all .12s;display:flex;align-items:center;gap:6px;pointer-events:all}
+.bb:hover{background:rgba(0,207,255,.13);border-color:rgba(0,207,255,.45)}
+.bb.active{background:rgba(0,207,255,.22);border-color:#00cfff;box-shadow:0 0 7px rgba(0,207,255,.28)}
+.bi{font-size:15px}.bn{font-size:10px;color:#e0f0ff}.bco{font-size:9px;color:rgba(200,220,255,.42)}
+#bdz{margin:5px;padding:6px;background:rgba(255,50,70,.09);border:1px solid rgba(255,50,70,.28);border-radius:4px;cursor:pointer;text-align:center;font-size:10px;color:#ff4466;transition:all .12s}
+#bdz:hover,#bdz.active{background:rgba(255,50,70,.22);border-color:#ff4466}
+#bl{overflow-y:auto;flex:1;padding-bottom:5px}#bl::-webkit-scrollbar{width:3px}#bl::-webkit-scrollbar-thumb{background:rgba(0,207,255,.28);border-radius:2px}
+.rp2{position:absolute;right:12px;width:212px;background:rgba(4,8,22,.95);border:1px solid rgba(0,207,255,.17);border-radius:8px;padding:11px;pointer-events:all;font-size:10px}
+#ip{top:84px}#selp{top:84px;border-color:rgba(0,207,255,.35);display:none}
+.rph{font-family:'Orbitron',sans-serif;font-size:10px;letter-spacing:2px;color:#00cfff;margin-bottom:7px}
+.sr{display:flex;justify-content:space-between;align-items:center;padding:2px 0;border-bottom:1px solid rgba(0,207,255,.07)}
+.sl{color:rgba(200,220,255,.5)}.sv{color:#e0f0ff}
+.sbar{height:3px;background:rgba(0,207,255,.1);border-radius:2px;margin:3px 0 5px;overflow:hidden}
+.sbf{height:100%;border-radius:2px;transition:width .5s}
+#em{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);width:370px;background:rgba(4,8,22,.97);border:2px solid #ff8800;border-radius:10px;padding:18px;pointer-events:all;display:none;z-index:100;text-align:center}
+#em.war{border-color:#ff2244}#em.good{border-color:#00ff88}
+#em h2{font-family:'Orbitron',sans-serif;font-size:15px;margin-bottom:9px}
+#em .em2{font-size:11px;color:rgba(200,220,255,.75);line-height:1.7;margin-bottom:12px}
+#em .ef{font-size:11px;color:#ffcc44;margin-bottom:12px;line-height:1.6}
+#eb{padding:7px 22px;background:rgba(0,207,255,.18);border:1px solid #00cfff;border-radius:5px;color:#00cfff;cursor:pointer;font-family:'Share Tech Mono',monospace;font-size:11px}
+#eb:hover{background:rgba(0,207,255,.32)}
+#sc{position:absolute;bottom:12px;left:50%;transform:translateX(-50%);display:flex;gap:5px;pointer-events:all;background:rgba(4,8,22,.94);border:1px solid rgba(0,207,255,.17);border-radius:6px;padding:6px 9px;align-items:center}
+.sp{width:28px;height:22px;background:rgba(0,207,255,.07);border:1px solid rgba(0,207,255,.17);border-radius:3px;color:#00cfff;font-size:11px;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:all .12s}
+.sp:hover{background:rgba(0,207,255,.18)}.sp.active{background:rgba(0,207,255,.28);border-color:#00cfff}
+#sl2{font-size:9px;color:rgba(200,220,255,.45);letter-spacing:1px;min-width:52px;text-align:center}
+#nots{position:absolute;bottom:60px;left:50%;transform:translateX(-50%);display:flex;flex-direction:column-reverse;gap:4px;pointer-events:none;width:370px}
+.nt{padding:6px 12px;background:rgba(4,8,22,.96);border-left:3px solid #00cfff;border-radius:3px;font-size:10px;animation:nI .27s ease,nO .27s ease 2.8s forwards}
+.nt.w{border-color:#ffcc00;color:#ffcc00}.nt.e{border-color:#ff4466;color:#ff4466}.nt.g{border-color:#00ff88;color:#00ff88}
+@keyframes nI{from{opacity:0;transform:translateY(7px)}to{opacity:1;transform:translateY(0)}}
+@keyframes nO{from{opacity:1}to{opacity:0}}
+#ch{position:absolute;bottom:12px;right:12px;font-size:8px;color:rgba(200,220,255,.27);line-height:1.9;text-align:right;pointer-events:none}
+#leg{position:absolute;bottom:60px;right:12px;background:rgba(4,8,22,.88);border:1px solid rgba(0,207,255,.14);border-radius:5px;padding:7px 9px;font-size:9px;color:rgba(200,220,255,.52);line-height:1.9;pointer-events:none}
+.ld{display:inline-block;width:9px;height:9px;border-radius:2px;margin-right:4px;vertical-align:middle}
+</style>
+</head>
+<body>
+<div id="cc"></div>
+<div id="hud">
+  <div id="topbar">
+    <div id="gt">NATION<span style="color:#fff">CRAFT</span></div>
+    <div class="res"><span class="ico">💰</span><div><div class="rv" id="rm">5000</div><div class="rl">FONDOS</div></div></div>
+    <div class="res"><span class="ico">👥</span><div><div class="rv" id="rp">0</div><div class="rl">POBL.</div></div></div>
+    <div class="res"><span class="ico">⚡</span><div><div class="rv" id="rw">0/0</div><div class="rl">ENERGÍA</div></div></div>
+    <div class="res"><span class="ico">💧</span><div><div class="rv" id="rwa">0/0</div><div class="rl">AGUA</div></div></div>
+    <div class="res"><span class="ico">🌾</span><div><div class="rv" id="rf">0/0</div><div class="rl">COMIDA</div></div></div>
+    <div class="res"><span class="ico">💚</span><div><div class="rv" id="rh">50%</div><div class="rl">BIENEST.</div></div></div>
+    <div class="res"><span class="ico">📈</span><div><div class="rv rp" id="ri">+0/año</div><div class="rl">INGRES.</div></div></div>
+    <div class="res"><span class="ico">🔬</span><div><div class="rv" id="rt">0</div><div class="rl">TECNOL.</div></div></div>
+    <div id="yr">AÑO 2025</div>
+  </div>
+  <div id="sb">🌤 Primavera</div>
+  <div id="bp">
+    <h3>⚙ CONSTRUIR</h3>
+    <div id="bl">
+      <div class="bc">RESIDENCIAL</div>
+      <div class="bb" onclick="selB(this,'house')"><span class="bi">🏠</span><div><div class="bn">Casa</div><div class="bco">💰80 cap:25 ⚡-3 💧-2</div></div></div>
+      <div class="bb" onclick="selB(this,'apartment')"><span class="bi">🏢</span><div><div class="bn">Apartamento</div><div class="bco">💰320 cap:90 ⚡-14 💧-8</div></div></div>
+      <div class="bb" onclick="selB(this,'skyscraper')"><span class="bi">🏙️</span><div><div class="bn">Rascacielos</div><div class="bco">💰1400 cap:280 ⚡-45</div></div></div>
+      <div class="bb" onclick="selB(this,'mansion')"><span class="bi">🏰</span><div><div class="bn">Mansión</div><div class="bco">💰600 cap:15 💚+12</div></div></div>
+      <div class="bc">ECONOMÍA</div>
+      <div class="bb" onclick="selB(this,'market')"><span class="bi">🏪</span><div><div class="bn">Mercado</div><div class="bco">💰150 +35/año</div></div></div>
+      <div class="bb" onclick="selB(this,'factory')"><span class="bi">🏭</span><div><div class="bn">Fábrica</div><div class="bco">💰420 +90/año</div></div></div>
+      <div class="bb" onclick="selB(this,'bank')"><span class="bi">🏦</span><div><div class="bn">Banco</div><div class="bco">💰900 +220/año</div></div></div>
+      <div class="bb" onclick="selB(this,'port')"><span class="bi">⚓</span><div><div class="bn">Puerto Comercial</div><div class="bco">💰1100 +300/año</div></div></div>
+      <div class="bb" onclick="selB(this,'mine')"><span class="bi">⛏️</span><div><div class="bn">Mina</div><div class="bco">💰500 +120/año</div></div></div>
+      <div class="bc">ENERGÍA</div>
+      <div class="bb" onclick="selB(this,'windmill')"><span class="bi">🌀</span><div><div class="bn">Molino viento</div><div class="bco">💰220 ⚡+35 área:6</div></div></div>
+      <div class="bb" onclick="selB(this,'solar')"><span class="bi">☀️</span><div><div class="bn">Panel Solar</div><div class="bco">💰380 ⚡+60 área:7</div></div></div>
+      <div class="bb" onclick="selB(this,'powerplant')"><span class="bi">⚡</span><div><div class="bn">Central Térmica</div><div class="bco">💰700 ⚡+140 área:9</div></div></div>
+      <div class="bb" onclick="selB(this,'nuclear')"><span class="bi">☢️</span><div><div class="bn">Central Nuclear</div><div class="bco">💰3000 ⚡+500 área:14</div></div></div>
+      <div class="bc">AGUA</div>
+      <div class="bb" onclick="selB(this,'well')"><span class="bi">🪣</span><div><div class="bn">Pozo</div><div class="bco">💰120 💧+30 área:5</div></div></div>
+      <div class="bb" onclick="selB(this,'waterplant')"><span class="bi">💧</span><div><div class="bn">Potabilizadora</div><div class="bco">💰550 💧+150 área:10</div></div></div>
+      <div class="bb" onclick="selB(this,'reservoir')"><span class="bi">🏞️</span><div><div class="bn">Embalse</div><div class="bco">💰1200 💧+400 área:15</div></div></div>
+      <div class="bc">ALIMENTACIÓN</div>
+      <div class="bb" onclick="selB(this,'farm')"><span class="bi">🌾</span><div><div class="bn">Granja</div><div class="bco">💰180 🌾+40</div></div></div>
+      <div class="bb" onclick="selB(this,'greenhouse')"><span class="bi">🌿</span><div><div class="bn">Invernadero</div><div class="bco">💰400 🌾+80</div></div></div>
+      <div class="bb" onclick="selB(this,'fishingport')"><span class="bi">🎣</span><div><div class="bn">Puerto Pesquero</div><div class="bco">💰600 🌾+120</div></div></div>
+      <div class="bc">SERVICIOS</div>
+      <div class="bb" onclick="selB(this,'park')"><span class="bi">🌳</span><div><div class="bn">Parque</div><div class="bco">💰100 💚+12</div></div></div>
+      <div class="bb" onclick="selB(this,'school')"><span class="bi">🏫</span><div><div class="bn">Escuela</div><div class="bco">💰380 💚+22 🔬+5</div></div></div>
+      <div class="bb" onclick="selB(this,'hospital')"><span class="bi">🏥</span><div><div class="bn">Hospital</div><div class="bco">💰750 💚+35</div></div></div>
+      <div class="bb" onclick="selB(this,'police')"><span class="bi">🚔</span><div><div class="bn">Comisaría</div><div class="bco">💰320 💚+18</div></div></div>
+      <div class="bb" onclick="selB(this,'firestation')"><span class="bi">🚒</span><div><div class="bn">Bomberos</div><div class="bco">💰280 💚+14</div></div></div>
+      <div class="bb" onclick="selB(this,'stadium')"><span class="bi">🏟️</span><div><div class="bn">Estadio</div><div class="bco">💰1800 💚+50 +150/año</div></div></div>
+      <div class="bb" onclick="selB(this,'university')"><span class="bi">🎓</span><div><div class="bn">Universidad</div><div class="bco">💰1500 🔬+30</div></div></div>
+      <div class="bc">DEFENSA</div>
+      <div class="bb" onclick="selB(this,'barracks')"><span class="bi">🪖</span><div><div class="bn">Cuartel</div><div class="bco">💰600 DEF+20</div></div></div>
+      <div class="bb" onclick="selB(this,'wall')"><span class="bi">🧱</span><div><div class="bn">Muralla</div><div class="bco">💰150 DEF+5</div></div></div>
+      <div class="bb" onclick="selB(this,'antiaircraft')"><span class="bi">🎯</span><div><div class="bn">Anti-aéreo</div><div class="bco">💰900 DEF+35</div></div></div>
+      <div class="bc">INFRAESTRUCTURA</div>
+      <div class="bb" onclick="selB(this,'road')"><span class="bi">🛣️</span><div><div class="bn">Carretera</div><div class="bco">💰20</div></div></div>
+      <div class="bb" onclick="selB(this,'highway')"><span class="bi">🛤️</span><div><div class="bn">Autopista</div><div class="bco">💰80 💚+5</div></div></div>
+    </div>
+    <div id="bdz" onclick="togBdz()">🔨 DEMOLER</div>
+  </div>
+  <div class="rp2" id="ip">
+    <div class="rph">📊 ESTADÍSTICAS</div>
+    <div class="sr"><span class="sl">Edificios</span><span class="sv" id="stb">0</span></div>
+    <div class="sr"><span class="sl">Población</span><span class="sv" id="stp">0</span></div>
+    <div class="sr"><span class="sl">Capacidad</span><span class="sv" id="stc">0</span></div>
+    <div class="sr"><span class="sl">Defensa</span><span class="sv" id="std">0</span></div>
+    <div class="sr"><span class="sl">Tecnología</span><span class="sv" id="stt">0</span></div>
+    <div class="sr"><span class="sl">Crimen</span><span class="sv" id="stcr">0%</span></div>
+    <div style="margin-top:7px;font-size:9px;color:rgba(200,220,255,.42)">BIENESTAR</div>
+    <div class="sbar"><div class="sbf" id="bh" style="width:50%;background:linear-gradient(90deg,#00ff88,#00cfff)"></div></div>
+    <div style="font-size:9px;color:rgba(200,220,255,.42)">ENERGÍA USADA</div>
+    <div class="sbar"><div class="sbf" id="bpw" style="width:0%;background:linear-gradient(90deg,#ffcc00,#ff8800)"></div></div>
+    <div style="font-size:9px;color:rgba(200,220,255,.42)">AGUA USADA</div>
+    <div class="sbar"><div class="sbf" id="bwt" style="width:0%;background:linear-gradient(90deg,#44aaff,#0055ff)"></div></div>
+    <div style="font-size:9px;color:rgba(200,220,255,.42)">COMIDA USADA</div>
+    <div class="sbar"><div class="sbf" id="bfd" style="width:0%;background:linear-gradient(90deg,#88ff44,#44aa00)"></div></div>
+    <div style="margin-top:7px;font-size:9px;color:rgba(200,220,255,.35);line-height:1.7">💡 Casas: necesitan ⚡+💧 cercanos<br>🌾 1 comida/8 hab/año<br>🎲 Evento cada 15-25 años</div>
+  </div>
+  <div class="rp2" id="selp">
+    <div class="rph" id="stit">Edificio</div>
+    <div id="sdesc" style="color:rgba(200,220,255,.52);font-size:9px;margin-bottom:7px;line-height:1.6"></div>
+    <div id="sstat"></div>
+    <div style="margin-top:7px;font-size:9px;color:rgba(200,220,255,.3)">Clic en vacío para deseleccionar</div>
+  </div>
+  <div id="em">
+    <h2 id="etit">Evento</h2>
+    <div class="em2" id="emsg"></div>
+    <div class="ef" id="eeff"></div>
+    <div id="eb" onclick="closeEv()">RECONOCER</div>
+  </div>
+  <div id="sc">
+    <div class="sp" onclick="setSp(0)" id="sp0">⏸</div>
+    <div class="sp active" onclick="setSp(1)" id="sp1">▶</div>
+    <div class="sp" onclick="setSp(2)" id="sp2">▶▶</div>
+    <div class="sp" onclick="setSp(3)" id="sp3">▶▶▶</div>
+    <div id="sl2">NORMAL</div>
+  </div>
+  <div id="nots"></div>
+  <div id="leg">
+    <span class="ld" style="background:#00cfff"></span>Con energía<br>
+    <span class="ld" style="background:#44aaff"></span>Con agua<br>
+    <span class="ld" style="background:#ff8800"></span>Sin servicios<br>
+    <span class="ld" style="background:#00ff88"></span>Llena
+  </div>
+  <div id="ch">🖱 DERECHO+DRAG: rotar<br>SCROLL: zoom<br>WASD: mover<br>CLICK: construir</div>
+</div>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+<script>
+const GS=32, CL=2.0, HL=(GS*CL)/2;
+function rn(a,b){return Math.floor(Math.random()*(b-a+1))+a;}
+
+// BUILDING DEFS: popCap,pCons,wCons,pProd,wProd,fProd,hap,inc,cost,cat,def,tech,area
+const BD={
+  house:      {n:'Casa',          cl:0xe8d5a3,ht:0.8, pc:25, co:[3,2,0],pr:[0,0,0], hap:3,  inc:8,   cost:80,   cat:'r',def:0, tch:0, ar:0},
+  apartment:  {n:'Apartamento',   cl:0x7ec8e3,ht:2.0, pc:90, co:[14,8,0],pr:[0,0,0],hap:4,  inc:18,  cost:320,  cat:'r',def:0, tch:0, ar:0},
+  skyscraper: {n:'Rascacielos',   cl:0xa8c0cc,ht:4.5, pc:280,co:[45,20,0],pr:[0,0,0],hap:6, inc:50,  cost:1400, cat:'r',def:0, tch:0, ar:0},
+  mansion:    {n:'Mansión',       cl:0xf0d080,ht:1.0, pc:15, co:[6,5,0],pr:[0,0,0], hap:12, inc:30,  cost:600,  cat:'r',def:0, tch:0, ar:0},
+  market:     {n:'Mercado',       cl:0xf4a460,ht:0.6, pc:0,  co:[8,4,0],pr:[0,0,0], hap:6,  inc:35,  cost:150,  cat:'e',def:0, tch:0, ar:0},
+  factory:    {n:'Fábrica',       cl:0x808080,ht:1.2, pc:0,  co:[20,10,0],pr:[0,0,0],hap:-6, inc:90,  cost:420,  cat:'e',def:0, tch:0, ar:0},
+  bank:       {n:'Banco',         cl:0xffd700,ht:3.0, pc:0,  co:[15,5,0],pr:[0,0,0], hap:2,  inc:220, cost:900,  cat:'e',def:0, tch:0, ar:0},
+  port:       {n:'Puerto Comerc.',cl:0x336688,ht:1.0, pc:0,  co:[18,8,0],pr:[0,0,0], hap:4,  inc:300, cost:1100, cat:'e',def:0, tch:0, ar:0},
+  mine:       {n:'Mina',          cl:0x665544,ht:0.5, pc:0,  co:[12,5,0],pr:[0,0,0], hap:-8, inc:120, cost:500,  cat:'e',def:0, tch:0, ar:0},
+  farm:       {n:'Granja',        cl:0x88aa44,ht:0.4, pc:0,  co:[2,15,0],pr:[0,0,40],hap:3,  inc:20,  cost:180,  cat:'f',def:0, tch:0, ar:0},
+  greenhouse: {n:'Invernadero',   cl:0x55cc44,ht:0.6, pc:0,  co:[8,20,0],pr:[0,0,80],hap:4,  inc:30,  cost:400,  cat:'f',def:0, tch:0, ar:0},
+  fishingport:{n:'Puerto Pesq.',  cl:0x3399cc,ht:0.5, pc:0,  co:[5,0,0], pr:[0,0,120],hap:3, inc:50,  cost:600,  cat:'f',def:0, tch:0, ar:0},
+  windmill:   {n:'Molino viento', cl:0xeeeeee,ht:2.5, pc:0,  co:[0,0,0], pr:[35,0,0],hap:2,  inc:-8,  cost:220,  cat:'pw',def:0,tch:0, ar:6},
+  solar:      {n:'Panel Solar',   cl:0x2244aa,ht:0.3, pc:0,  co:[0,0,0], pr:[60,0,0],hap:1,  inc:-15, cost:380,  cat:'pw',def:0,tch:0, ar:7},
+  powerplant: {n:'Central Térmica',cl:0x556677,ht:1.8,pc:0,  co:[0,20,0],pr:[140,0,0],hap:-10,inc:-40,cost:700,  cat:'pw',def:0,tch:0, ar:9},
+  nuclear:    {n:'Central Nuclear',cl:0x334422,ht:2.2,pc:0,  co:[0,50,0],pr:[500,0,0],hap:-15,inc:-80,cost:3000, cat:'pw',def:0,tch:5, ar:14},
+  well:       {n:'Pozo',          cl:0x7799bb,ht:0.5, pc:0,  co:[2,0,0], pr:[0,30,0], hap:2,  inc:-5,  cost:120,  cat:'wt',def:0,tch:0, ar:5},
+  waterplant: {n:'Potabilizadora',cl:0x4488cc,ht:0.9, pc:0,  co:[10,0,0],pr:[0,150,0],hap:4,  inc:-25, cost:550,  cat:'wt',def:0,tch:0, ar:10},
+  reservoir:  {n:'Embalse',       cl:0x2266aa,ht:0.6, pc:0,  co:[5,0,0], pr:[0,400,0],hap:5,  inc:-50, cost:1200, cat:'wt',def:0,tch:0, ar:15},
+  park:       {n:'Parque',        cl:0x4caf50,ht:0.1, pc:0,  co:[0,3,0], pr:[0,0,0],  hap:12, inc:-5,  cost:100,  cat:'s',def:0, tch:0, ar:0},
+  school:     {n:'Escuela',       cl:0xffeb3b,ht:1.0, pc:0,  co:[12,6,0],pr:[0,0,0],  hap:22, inc:-22, cost:380,  cat:'s',def:0, tch:5, ar:0},
+  hospital:   {n:'Hospital',      cl:0xef5350,ht:1.5, pc:0,  co:[18,12,0],pr:[0,0,0], hap:35, inc:-45, cost:750,  cat:'s',def:0, tch:2, ar:0},
+  police:     {n:'Comisaría',     cl:0x1565c0,ht:0.9, pc:0,  co:[8,4,0], pr:[0,0,0],  hap:18, inc:-18, cost:320,  cat:'s',def:5, tch:0, ar:0},
+  firestation:{n:'Bomberos',      cl:0xff6622,ht:0.8, pc:0,  co:[6,4,0], pr:[0,0,0],  hap:14, inc:-12, cost:280,  cat:'s',def:3, tch:0, ar:0},
+  stadium:    {n:'Estadio',       cl:0xcc4400,ht:1.2, pc:0,  co:[25,10,0],pr:[0,0,0], hap:50, inc:150, cost:1800, cat:'s',def:0, tch:0, ar:0},
+  university: {n:'Universidad',   cl:0x9c27b0,ht:2.0, pc:0,  co:[20,8,0],pr:[0,0,0],  hap:25, inc:-60, cost:1500, cat:'s',def:0, tch:30,ar:0},
+  barracks:   {n:'Cuartel',       cl:0x556633,ht:1.0, pc:0,  co:[10,6,0],pr:[0,0,0],  hap:-2, inc:-30, cost:600,  cat:'m',def:20,tch:0, ar:0},
+  wall:       {n:'Muralla',       cl:0x888888,ht:0.6, pc:0,  co:[0,0,0], pr:[0,0,0],  hap:0,  inc:0,   cost:150,  cat:'m',def:5, tch:0, ar:0},
+  antiaircraft:{n:'Anti-aéreo',   cl:0x667733,ht:0.7, pc:0,  co:[8,0,0], pr:[0,0,0],  hap:-1, inc:-15, cost:900,  cat:'m',def:35,tch:0, ar:0},
+  road:       {n:'Carretera',     cl:0x444444,ht:0.05,pc:0,  co:[0,0,0], pr:[0,0,0],  hap:0,  inc:0,   cost:20,   cat:'rd',def:0,tch:0, ar:0},
+  highway:    {n:'Autopista',     cl:0x333333,ht:0.07,pc:0,  co:[0,0,0], pr:[0,0,0],  hap:5,  inc:0,   cost:80,   cat:'rd',def:0,tch:0, ar:0},
+};
+
+const EVENTS=[
+  {id:'hurricane',t:'🌀 ¡HURACÁN!',    cls:'',    m:'Un devastador huracán azota la nación.',      ef:'−30% fondos | −20% edificios | −15 bienestar',fn(s){s.money*=0.7;dRand(0.2);s.hap=Math.max(0,s.hap-15);nt('🌀 Huracán devastador!','e');}},
+  {id:'war',      t:'⚔️ ¡GUERRA!',      cls:'war', m:'Una nación vecina te declara la guerra. Tu nivel de defensa determina las pérdidas.',ef:'DEF alta→daño mínimo | sin DEF→destrucción masiva',fn(s){warEv(s);}},
+  {id:'quake',    t:'🌋 ¡TERREMOTO!',   cls:'',    m:'Un terremoto de magnitud 7 sacude la nación.',ef:'−15% edificios | −20% fondos | −10 bienestar',fn(s){s.money*=0.8;dRand(0.15);s.hap=Math.max(0,s.hap-10);nt('🌋 Terremoto!','e');}},
+  {id:'epidemic', t:'🦠 ¡EPIDEMIA!',    cls:'',    m:'Una grave epidemia se propaga por la nación. Los hospitales mitigan el daño.',ef:'−30-50% población | −20 bienestar',fn(s){epidEv(s);}},
+  {id:'drought',  t:'☀️ ¡SEQUÍA!',      cls:'',    m:'Una sequía histórica arrasa los cultivos y vacía los embalses.',ef:'💧 prod −60% × 3 años | 🌾 prod −50% | −8 bienestar',fn(s){s.hap=Math.max(0,s.hap-8);s.drought=3;nt('☀️ Sequía: agua y comida reducidas 3 años','w');}},
+  {id:'fire',     t:'🔥 ¡INCENDIO!',    cls:'',    m:'Un incendio arrasa parte de la ciudad. Los bomberos reducen el daño.',ef:'5-15 edificios destruidos',fn(s){fireEv(s);}},
+  {id:'blackout', t:'⚡ ¡APAGÓN!',      cls:'',    m:'Un fallo masivo deja la nación sin electricidad.',ef:'−12 bienestar | −15% fondos | prod −50% × 2 años',fn(s){s.money*=0.85;s.hap=Math.max(0,s.hap-12);s.blackout=2;nt('⚡ Apagón masivo: 2 años sin electricidad plena','w');}},
+  {id:'flood',    t:'🌊 ¡INUNDACIÓN!',  cls:'',    m:'Lluvias torrenciales causan graves inundaciones.',ef:'−10% edificios | −10% fondos | −8 bienestar',fn(s){s.money*=0.9;dRand(0.1);s.hap=Math.max(0,s.hap-8);nt('🌊 Inundación: daños graves','e');}},
+  {id:'blizzard', t:'🌨️ ¡VENTISCA!',   cls:'',    m:'Una tormenta invernal paraliza la nación por meses.',ef:'−5% fondos | −5 bienestar | crecim −50% 1 año',fn(s){s.money*=0.95;s.hap=Math.max(0,s.hap-5);s.freeze=1;nt('🌨️ Ventisca: crecimiento congelado 1 año','w');}},
+  {id:'gold',     t:'⛏️ ¡FIEBRE DEL ORO!',cls:'good',m:'Enormes yacimientos de oro han sido descubiertos.',ef:'+500% fondos',fn(s){s.money*=6;nt('⛏️ Fiebre del oro!','g');}},
+  {id:'tourism',  t:'✈️ ¡BOOM TURÍSTICO!',cls:'good',m:'Tu ciudad se hace famosa mundialmente.',ef:'+300% fondos | +25 bienestar',fn(s){s.money*=4;s.hap=Math.min(100,s.hap+25);nt('✈️ Boom turístico!','g');}},
+  {id:'tech',     t:'🔬 ¡REVOLUCIÓN TECH!',cls:'good',m:'Avances científicos revolucionarios.',ef:'+50 tecnología | +200% fondos | +15 bienestar',fn(s){s.money*=3;s.tech+=50;s.hap=Math.min(100,s.hap+15);nt('🔬 Revolución tecnológica!','g');}},
+  {id:'invest',   t:'💼 ¡INVERSIÓN EXTRANJERA!',cls:'good',m:'Una multinacional elige tu nación.',ef:'+400% fondos',fn(s){s.money*=5;nt('💼 Inversión masiva!','g');}},
+  {id:'baby',     t:'👶 ¡BOOM DEMOGRÁFICO!',cls:'good',m:'Política de natalidad exitosa.',ef:'+30% crecim × 5 años | +10 bienestar',fn(s){s.babyboom=5;s.hap=Math.min(100,s.hap+10);nt('👶 Boom demográfico 5 años!','g');}},
+  {id:'ally',     t:'🤝 ¡ALIANZA COMERCIAL!',cls:'good',m:'Firmas un tratado comercial histórico.',ef:'+150% ingresos × 3 años',fn(s){s.alliance=3;nt('🤝 Alianza: ingresos x2.5 durante 3 años!','g');}},
+];
+
+// STATE
+const S={
+  money:5000, year:2025, speed:1, tacc:0, nextEv:rn(15,25),
+  selBuild:null, bdz:false, tech:0, hap:50,
+  drought:0, blackout:0, babyboom:0, freeze:0, alliance:0,
+  season:0, seasYr:0, pending:null,
+  grid:{},
+  totals:{pop:0,cap:0,pPr:0,pCo:0,wPr:0,wCo:0,fPr:0,fCo:0,inc:0,bld:0,def:0}
+};
+
+// THREE
+const scene=new THREE.Scene();
+scene.background=new THREE.Color(0x0d1526);
+scene.fog=new THREE.Fog(0x0d1526,48,105);
+const renderer=new THREE.WebGLRenderer({antialias:true});
+renderer.setSize(innerWidth,innerHeight);
+renderer.shadowMap.enabled=true;
+renderer.shadowMap.type=THREE.PCFSoftShadowMap;
+renderer.setPixelRatio(Math.min(devicePixelRatio,2));
+document.getElementById('cc').appendChild(renderer.domElement);
+const camera=new THREE.PerspectiveCamera(52,innerWidth/innerHeight,0.1,200);
+camera.position.set(22,28,32);
+scene.add(new THREE.AmbientLight(0x334466,.75));
+const sun=new THREE.DirectionalLight(0xffeedd,1.15);
+sun.position.set(30,45,20);sun.castShadow=true;
+sun.shadow.mapSize.set(2048,2048);
+[-55,55].forEach(v=>{sun.shadow.camera.left=v<0?v:sun.shadow.camera.left;sun.shadow.camera.right=v>0?v:sun.shadow.camera.right;});
+sun.shadow.camera.left=-55;sun.shadow.camera.right=55;sun.shadow.camera.top=55;sun.shadow.camera.bottom=-55;sun.shadow.camera.far=150;
+scene.add(sun);
+scene.add(new THREE.HemisphereLight(0x1a2a4a,0x0a150a,.35));
+const gnd=new THREE.Mesh(new THREE.PlaneGeometry(GS*CL,GS*CL,GS,GS),new THREE.MeshLambertMaterial({color:0x1a3020}));
+gnd.rotation.x=-Math.PI/2;gnd.receiveShadow=true;gnd.name='ground';scene.add(gnd);
+scene.add(new THREE.GridHelper(GS*CL,GS,0x1e4030,0x1e4030));
+const prev=new THREE.Mesh(new THREE.BoxGeometry(CL*.95,.1,CL*.95),new THREE.MeshBasicMaterial({color:0x00cfff,transparent:true,opacity:.4,depthWrite:false}));
+prev.visible=false;scene.add(prev);
+const ray=new THREE.Raycaster();
+const mouse=new THREE.Vector2();
+
+// area ring visuals
+let rings=[];
+function showRing(cx,cz,r,col){
+  rings.forEach(m=>{scene.remove(m);m.geometry.dispose();});rings=[];
+  if(r<=0)return;
+  const g=new THREE.RingGeometry(r*CL-.12,r*CL+.12,Math.max(32,r*8));
+  const m=new THREE.Mesh(g,new THREE.MeshBasicMaterial({color:col,transparent:true,opacity:.55,side:THREE.DoubleSide,depthWrite:false}));
+  m.rotation.x=-Math.PI/2;const p=c2w(cx,cz);m.position.set(p.x,.06,p.z);scene.add(m);rings.push(m);
+}
+function clearRings(){rings.forEach(m=>{scene.remove(m);m.geometry.dispose();});rings=[];}
+
+function c2w(cx,cz){return{x:cx*CL-HL+CL/2,z:cz*CL-HL+CL/2};}
+function w2c(x,z){return{cx:Math.floor((x+HL)/CL),cz:Math.floor((z+HL)/CL)};}
+
+// coverage
+function cellsInArea(cx,cz,r){
+  const s=new Set();
+  for(let dx=-r;dx<=r;dx++)for(let dz=-r;dz<=r;dz++)
+    if(Math.sqrt(dx*dx+dz*dz)<=r){const nx=cx+dx,nz=cz+dz;if(nx>=0&&nx<GS&&nz>=0&&nz<GS)s.add(`${nx},${nz}`);}
+  return s;
+}
+
+function recalcCoverage(){
+  for(const k in S.grid){S.grid[k].pow=false;S.grid[k].wat=false;}
+  for(const k in S.grid){
+    const c=S.grid[k],d=BD[c.type];
+    if(d.pr[0]>0&&d.ar>0){const cv=cellsInArea(c.cx,c.cz,d.ar);cv.forEach(kk=>{if(S.grid[kk])S.grid[kk].pow=true;});}
+    if(d.pr[1]>0&&d.ar>0){const cv=cellsInArea(c.cx,c.cz,d.ar);cv.forEach(kk=>{if(S.grid[kk])S.grid[kk].wat=true;});}
+  }
+  updateColors();
+}
+
+function updateColors(){
+  for(const k in S.grid){
+    const c=S.grid[k];const d=BD[c.type];
+    if(d.pc>0){
+      let col;
+      if(!c.pow&&!c.wat)col=0xff4400;
+      else if(!c.pow)col=0xff8800;
+      else if(!c.wat)col=0xffcc00;
+      else{const r=(c.pop||0)/d.pc;col=r>=.95?0x00ff88:r>.5?0x44ccff:d.cl;}
+      c.mesh.traverse(ch=>{if(ch.isMesh&&ch.material&&ch.material.color&&!ch._nc)ch.material.color.setHex(col);});
+    }
+  }
+}
+
+// BUILD
+function buildAt(cx,cz){
+  if(cx<0||cx>=GS||cz<0||cz>=GS)return;
+  const k=`${cx},${cz}`;if(S.grid[k])return;
+  const t=S.selBuild;if(!t)return;
+  const d=BD[t];
+  if(S.money<d.cost){nt('💰 Fondos insuficientes','w');return;}
+  S.money-=d.cost;
+  const p=c2w(cx,cz);
+  const mesh=mkMesh(t,d);
+  mesh.position.set(p.x,d.ht/2,p.z);
+  scene.add(mesh);
+  S.grid[k]={type:t,mesh,cx,cz,pop:0,pow:false,wat:false};
+  recalcCoverage();recalcStats();
+}
+
+function demolAt(cx,cz){
+  const k=`${cx},${cz}`;const c=S.grid[k];if(!c)return;
+  scene.remove(c.mesh);
+  c.mesh.traverse(ch=>{if(ch.isMesh){ch.geometry.dispose();if(ch.material)ch.material.dispose();}});
+  delete S.grid[k];
+  recalcCoverage();recalcStats();
+  nt('🔨 Demolido');
+}
+
+function dRand(pct){
+  const ks=Object.keys(S.grid);const n=Math.floor(ks.length*pct);
+  const shuffled=ks.sort(()=>Math.random()-.5);
+  for(let i=0;i<Math.min(n,shuffled.length);i++){const c=S.grid[shuffled[i]];if(c)demolAt(c.cx,c.cz);}
+}
+
+// MESH CREATION
+function M(color){return new THREE.MeshLambertMaterial({color});}
+function mkMesh(type,d){
+  const g=new THREE.Group();const w=CL*.82;
+  switch(type){
+    case'road':case'highway':{
+      const b=new THREE.Mesh(new THREE.BoxGeometry(CL*.99,d.ht,CL*.99),M(d.cl));g.add(b);
+      if(type==='highway'){const l=new THREE.Mesh(new THREE.BoxGeometry(.07,d.ht+.01,CL*.75),M(0xffff88));l._nc=true;g.add(l);}
+      break;}
+    case'park':{
+      g.add(new THREE.Mesh(new THREE.BoxGeometry(w,.12,w),M(0x2d8a3e)));
+      for(let i=0;i<4;i++){
+        const tr=new THREE.Group();
+        tr.add(Object.assign(new THREE.Mesh(new THREE.CylinderGeometry(.05,.08,.38,6),M(0x3d2208)),{position:{y:.18,x:0,z:0}}));
+        const cr=new THREE.Mesh(new THREE.ConeGeometry(.22+Math.random()*.1,.55,6),M(0x1a6020+rn(0,6)*0x010000));cr.position.y=.6;tr.add(cr);
+        tr.position.set((i%2-.5)*.7,.12,(Math.floor(i/2)-.5)*.7);g.add(tr);}break;}
+    case'farm':{
+      g.add(new THREE.Mesh(new THREE.BoxGeometry(w,.1,w),M(0x88aa44)));
+      for(let r=0;r<4;r++){const row=new THREE.Mesh(new THREE.BoxGeometry(w*.08,.18,w*.6),M(0x55cc22));row.position.set(-w*.36+r*w*.24,.14,0);g.add(row);}break;}
+    case'greenhouse':{
+      g.add(new THREE.Mesh(new THREE.BoxGeometry(w,.08,w),M(0x336633)));
+      const gl=new THREE.Mesh(new THREE.BoxGeometry(w*.9,.6,w*.9),M(0x99ddaa));gl.position.y=.34;g.add(gl);break;}
+    case'windmill':{
+      g.add(new THREE.Mesh(new THREE.CylinderGeometry(.09,.15,d.ht,8),M(0xdddddd)));
+      for(let i=0;i<3;i++){const bl=new THREE.Mesh(new THREE.BoxGeometry(.07,1.3,.05),M(0xffffff));bl.position.set(0,d.ht/2-.1,.1);bl.rotation.z=(i/3)*Math.PI*2;bl._blade=true;g.add(bl);}break;}
+    case'solar':{
+      g.add(new THREE.Mesh(new THREE.BoxGeometry(w,.08,w),M(0x222244)));
+      const pn=new THREE.Mesh(new THREE.BoxGeometry(w*.9,.04,w*.9),M(0x1133aa));pn.position.y=.1;pn.rotation.x=-.2;g.add(pn);break;}
+    case'well':{
+      g.add(new THREE.Mesh(new THREE.CylinderGeometry(.35,.4,.5,12),M(0x886655)));
+      const wt=new THREE.Mesh(new THREE.CylinderGeometry(.28,.28,.05,12),M(0x4499ff));wt.position.y=.28;g.add(wt);break;}
+    case'waterplant':{
+      g.add(new THREE.Mesh(new THREE.BoxGeometry(w,d.ht,w),M(0x4488cc)));
+      const tk=new THREE.Mesh(new THREE.CylinderGeometry(.25,.25,.8,12),M(0x2266aa));tk.position.set(.4,d.ht/2+.3,.4);g.add(tk);break;}
+    case'reservoir':{
+      g.add(new THREE.Mesh(new THREE.BoxGeometry(w,.3,w),M(0x335577)));
+      const wl=new THREE.Mesh(new THREE.BoxGeometry(w*.8,.12,w*.8),M(0x2266cc));wl.position.y=.2;g.add(wl);break;}
+    case'skyscraper':{
+      const b1=new THREE.Mesh(new THREE.BoxGeometry(w,1.6,w),M(0x8898a8));
+      const b2=new THREE.Mesh(new THREE.BoxGeometry(w*.7,2.5,w*.7),M(d.cl));b2.position.y=2.0;
+      const tp=new THREE.Mesh(new THREE.BoxGeometry(.22,.85,.22),M(0x00cfff));tp.position.y=3.7;tp._nc=true;
+      addWin(g,w*.71,2.5,w*.71,.17,.13,1.0,0xaaffff);
+      g.add(b1);g.add(b2);g.add(tp);break;}
+    case'apartment':{
+      const ab=new THREE.Mesh(new THREE.BoxGeometry(w,d.ht,w),M(d.cl));g.add(ab);
+      addWin(g,w+.01,d.ht,w+.01,.16,.13,0,0xffffaa);break;}
+    case'mansion':{
+      g.add(new THREE.Mesh(new THREE.BoxGeometry(w*.85,1.0,w*.85),M(0xf0d080)));
+      const rf=new THREE.Mesh(new THREE.ConeGeometry(w*.65,.6,4),M(0x884422));rf.rotation.y=Math.PI/4;rf.position.y=.8;g.add(rf);break;}
+    case'factory':{
+      g.add(new THREE.Mesh(new THREE.BoxGeometry(w,d.ht,w),M(d.cl)));
+      for(let i=-1;i<=1;i+=2){const ch=new THREE.Mesh(new THREE.CylinderGeometry(.07,.1,1.1,6),M(0x553333));ch.position.set(i*.35,d.ht/2+.35,0);g.add(ch);}break;}
+    case'powerplant':{
+      g.add(new THREE.Mesh(new THREE.BoxGeometry(w,d.ht,w),M(d.cl)));
+      const sm=new THREE.Mesh(new THREE.CylinderGeometry(.2,.25,1.5,8),M(0x334455));sm.position.y=d.ht/2+.5;g.add(sm);break;}
+    case'nuclear':{
+      g.add(new THREE.Mesh(new THREE.CylinderGeometry(.7,.8,1.5,16),M(0x445533)));
+      const dm=new THREE.Mesh(new THREE.SphereGeometry(.7,16,8,0,Math.PI*2,0,Math.PI/2),M(0x334422));dm.position.y=.75;g.add(dm);
+      const cl2=new THREE.Mesh(new THREE.CylinderGeometry(.25,.35,2.5,8),M(0x556655));cl2.position.set(.8,.5,0);g.add(cl2);break;}
+    case'hospital':{
+      g.add(new THREE.Mesh(new THREE.BoxGeometry(w,d.ht,w),M(0xffffff)));
+      const cx2=new THREE.Mesh(new THREE.BoxGeometry(.5,.07,.12),M(0xff2222));cx2._nc=true;cx2.position.set(0,d.ht/2+.04,w/2+.02);g.add(cx2);
+      const cv=new THREE.Mesh(new THREE.BoxGeometry(.12,.07,.5),M(0xff2222));cv._nc=true;cv.position.set(0,d.ht/2+.04,w/2+.02);g.add(cv);break;}
+    case'barracks':{
+      g.add(new THREE.Mesh(new THREE.BoxGeometry(w,d.ht,w),M(0x556633)));
+      const fl=new THREE.Mesh(new THREE.BoxGeometry(.05,.8,.05),M(0x888888));fl.position.y=d.ht/2+.4;fl._nc=true;g.add(fl);
+      const bn=new THREE.Mesh(new THREE.BoxGeometry(.3,.2,.02),M(0xdd2222));bn.position.set(.17,d.ht/2+.7,0);bn._nc=true;g.add(bn);break;}
+    case'wall':{g.add(new THREE.Mesh(new THREE.BoxGeometry(CL*.99,d.ht,CL*.99),M(0x888888)));break;}
+    case'university':{
+      g.add(new THREE.Mesh(new THREE.BoxGeometry(w,d.ht,w),M(0x9c27b0)));
+      const dm2=new THREE.Mesh(new THREE.SphereGeometry(.3,12,6,0,Math.PI*2,0,Math.PI/2),M(0x7b1fa2));dm2.position.y=d.ht/2;g.add(dm2);break;}
+    case'port':case'fishingport':{
+      g.add(new THREE.Mesh(new THREE.BoxGeometry(w,.5,w),M(0x336688)));
+      const cr=new THREE.Mesh(new THREE.BoxGeometry(.08,1.2,.08),M(0xcc8822));cr.position.y=.85;cr._nc=true;g.add(cr);
+      const ar=new THREE.Mesh(new THREE.BoxGeometry(.7,.08,.08),M(0xcc8822));ar.position.set(.25,1.35,0);ar._nc=true;g.add(ar);break;}
+    case'mine':{
+      g.add(new THREE.Mesh(new THREE.BoxGeometry(w,.5,w),M(0x665544)));
+      g.add(new THREE.Mesh(new THREE.BoxGeometry(.4,.4,.4),M(0x333333))).position&&(g.children[g.children.length-1].position.y=.45);break;}
+    default:{g.add(new THREE.Mesh(new THREE.BoxGeometry(w,d.ht||.5,w),M(d.cl)));break;}
+  }
+  g.traverse(ch=>{if(ch.isMesh){ch.castShadow=true;ch.receiveShadow=true;}});
+  return g;
+}
+
+function addWin(group,w,h,d,ww,wh,yOff,col){
+  const mat=new THREE.MeshBasicMaterial({color:col});
+  const fl=Math.floor(h/.5),ps=3;
+  for(let f=0;f<fl;f++)for(let s=0;s<ps;s++){
+    const y=-h/2+.22+f*.52+yOff,xo=(s-(ps-1)/2)*(w/ps);
+    const win=new THREE.Mesh(new THREE.BoxGeometry(ww,wh,.04),mat);win.position.set(xo,y,d/2+.01);win._nc=true;group.add(win);
+    const win2=win.clone();win2.position.z=-d/2-.01;group.add(win2);
+  }
+}
+
+// STATS
+function recalcStats(){
+  let pop=0,cap=0,pPr=0,pCo=0,wPr=0,wCo=0,fPr=0,fCo=0,inc=0,bld=0,def2=0,tech=0;
+  const dr=S.drought>0,bl=S.blackout>0,al=S.alliance>0;
+  for(const k in S.grid){
+    const c=S.grid[k];const d=BD[c.type];bld++;
+    cap+=d.pc;pop+=(c.pop||0);
+    pPr+=bl?d.pr[0]*.5:d.pr[0];
+    wPr+=dr?d.pr[1]*.4:d.pr[1];
+    fPr+=dr?d.pr[2]*.5:d.pr[2];
+    pCo+=d.co[0];wCo+=d.co[1];
+    fCo+=Math.floor((c.pop||0)/8);
+    const hasAll=c.pow&&c.wat;
+    inc+=(hasAll?1:.4)*d.inc*(al?2.5:1);
+    def2+=d.def;tech+=d.tch;
+  }
+  let hap=50;
+  for(const k in S.grid)hap+=BD[S.grid[k].type].hap;
+  if(pCo>pPr+1)hap-=10;if(wCo>wPr+1)hap-=12;if(fCo>fPr+1)hap-=15;
+  S.hap=Math.max(0,Math.min(100,Math.floor(hap)));
+  S.tech=Math.max(S.tech,tech);
+  S.totals={pop,cap,pPr:Math.floor(pPr),pCo:Math.floor(pCo),wPr:Math.floor(wPr),wCo:Math.floor(wCo),fPr:Math.floor(fPr),fCo:Math.floor(fCo),inc:Math.floor(inc),bld,def:def2};
+  updateHUD();
+}
+
+function growPop(){
+  const hb=S.hap/100,tb=1+S.tech*.008,bb=S.babyboom>0?1.3:1,fb=S.freeze>0?.3:1;
+  for(const k in S.grid){
+    const c=S.grid[k];const d=BD[c.type];if(d.pc<=0)continue;
+    if(!c.pow||!c.wat){c.pop=Math.max(0,(c.pop||0)-Math.ceil(d.pc*.04));continue;}
+    const gr=Math.max(1,Math.floor(d.pc*.1*hb*tb*bb*fb));
+    c.pop=Math.min(d.pc,(c.pop||0)+gr);
+  }
+}
+
+// HUD
+const SEAS=['🌤 Primavera','☀️ Verano','🍂 Otoño','❄️ Invierno'];
+function updateHUD(){
+  const t=S.totals;
+  document.getElementById('rm').textContent=Math.floor(S.money).toLocaleString();
+  document.getElementById('rp').textContent=t.pop.toLocaleString();
+  document.getElementById('rw').textContent=`${t.pPr}/${t.pCo}`;
+  document.getElementById('rwa').textContent=`${t.wPr}/${t.wCo}`;
+  document.getElementById('rf').textContent=`${t.fPr}/${Math.max(0,t.fCo)}`;
+  document.getElementById('rh').textContent=S.hap+'%';
+  const ie=document.getElementById('ri');ie.textContent=(t.inc>=0?'+':'')+t.inc+'/año';ie.className='rv '+(t.inc>=0?'rp':'rn');
+  document.getElementById('rt').textContent=S.tech;
+  document.getElementById('yr').textContent=`AÑO ${S.year}`;
+  document.getElementById('sb').textContent=SEAS[S.season]+(S.drought>0?' 🏜️':'')+(S.blackout>0?' ⚡':'')+(S.babyboom>0?' 👶':'')+(S.alliance>0?' 🤝':'');
+  document.getElementById('stb').textContent=t.bld;
+  document.getElementById('stp').textContent=t.pop.toLocaleString();
+  document.getElementById('stc').textContent=t.cap.toLocaleString();
+  document.getElementById('std').textContent=t.def;
+  document.getElementById('stt').textContent=S.tech;
+  const cr=Math.max(0,Math.min(100,50-t.def-(S.hap-50)*.5));
+  document.getElementById('stcr').textContent=Math.floor(cr)+'%';
+  document.getElementById('bh').style.width=S.hap+'%';
+  const pp=t.pPr>0?Math.min(100,(t.pCo/t.pPr)*100):100;
+  document.getElementById('bpw').style.width=pp+'%';
+  document.getElementById('bpw').style.background=pp>85?'linear-gradient(90deg,#ff4466,#ff8800)':'linear-gradient(90deg,#ffcc00,#00cfff)';
+  const wp=t.wPr>0?Math.min(100,(t.wCo/t.wPr)*100):100;
+  document.getElementById('bwt').style.width=wp+'%';
+  document.getElementById('bwt').style.background=wp>85?'linear-gradient(90deg,#ff4466,#ff8800)':'linear-gradient(90deg,#44aaff,#0055ff)';
+  const fp=t.fPr>0?Math.min(100,(t.fCo/t.fPr)*100):(t.fCo>0?100:0);
+  document.getElementById('bfd').style.width=fp+'%';
+  document.getElementById('bfd').style.background=fp>85?'linear-gradient(90deg,#ff4466,#ff8800)':'linear-gradient(90deg,#88ff44,#44aa00)';
+}
+
+// TICK
+const YRSMS=[0,5000,2500,1000];
+function tick(dt){
+  if(S.speed===0||S.pending)return;
+  S.tacc+=dt;if(S.tacc<YRSMS[S.speed])return;S.tacc-=YRSMS[S.speed];
+  S.year++;S.seasYr++;
+  if(S.seasYr>=4){S.season=(S.season+1)%4;S.seasYr=0;}
+  if(S.drought>0)S.drought--;if(S.blackout>0)S.blackout--;
+  if(S.babyboom>0)S.babyboom--;if(S.freeze>0)S.freeze--;
+  if(S.alliance>0)S.alliance--;
+  growPop();recalcStats();updateColors();
+  S.money+=S.totals.inc;
+  if(S.money<0)nt('⚠️ Déficit: la nación está en quiebra','e');
+  if(S.totals.pCo>S.totals.pPr+5)nt('⚡ Sobrecarga eléctrica!','w');
+  if(S.totals.wCo>S.totals.wPr+5)nt('💧 Escasez de agua!','w');
+  if(S.totals.fCo>S.totals.fPr+5)nt('🌾 Hambre en la nación!','w');
+  S.nextEv--;
+  if(S.nextEv<=0){trigEv();S.nextEv=rn(15,28);}
+}
+
+// EVENTS
+function trigEv(){
+  const ev=EVENTS[Math.floor(Math.random()*EVENTS.length)];
+  S.pending=ev;
+  const em=document.getElementById('em');em.className=ev.cls||'';
+  document.getElementById('etit').textContent=ev.t;
+  document.getElementById('emsg').textContent=ev.m;
+  document.getElementById('eeff').innerHTML=ev.ef.replace(/\|/g,'<br>');
+  em.style.display='block';
+}
+function closeEv(){
+  if(!S.pending)return;
+  S.pending.fn(S);
+  recalcCoverage();recalcStats();
+  S.pending=null;
+  document.getElementById('em').style.display='none';
+}
+function warEv(s){
+  const d=s.totals.def;
+  let p;
+  if(d>=80){p=.02;nt('⚔️ Guerra! Defensa excelente - daños mínimos','w');}
+  else if(d>=40){p=.08;nt('⚔️ Guerra! Defensa moderada','e');}
+  else if(d>=15){p=.18;nt('⚔️ Guerra! Defensa débil - graves daños','e');}
+  else{p=.35;s.money*=.5;nt('⚔️ Sin defensa! Destrucción masiva','e');}
+  dRand(p);s.hap=Math.max(0,s.hap-20);
+}
+function epidEv(s){
+  const h=Object.values(s.grid).filter(c=>c.type==='hospital').length;
+  const sev=Math.max(.08,.45-h*.05);
+  for(const k in s.grid){const c=s.grid[k];if(BD[c.type].pc>0)c.pop=Math.floor(c.pop*(1-sev));}
+  s.hap=Math.max(0,s.hap-20);
+  nt(`🦠 Epidemia: ${Math.floor(sev*100)}% afectados. Hospitales: ${h}`,'e');
+}
+function fireEv(s){
+  const fs=Object.values(s.grid).filter(c=>c.type==='firestation').length;
+  const n=Math.max(2,rn(5,15)-fs*2);
+  dRand(Math.min(.18,n/Math.max(1,Object.keys(s.grid).length)));
+  nt(`🔥 Incendio! ${n} edificios. Bomberos: ${fs}`,'e');
+}
+
+// CAMERA
+const cam={target:new THREE.Vector3(0,0,0),theta:Math.PI/4,phi:Math.PI/3.5,r:42,drag:false,lx:0,ly:0,keys:{}};
+function updCam(){
+  const x=cam.r*Math.sin(cam.phi)*Math.sin(cam.theta);
+  const y=cam.r*Math.cos(cam.phi);
+  const z=cam.r*Math.sin(cam.phi)*Math.cos(cam.theta);
+  camera.position.set(cam.target.x+x,cam.target.y+y,cam.target.z+z);
+  camera.lookAt(cam.target);
+}
+renderer.domElement.addEventListener('mousedown',e=>{if(e.button>=1){cam.drag=true;cam.lx=e.clientX;cam.ly=e.clientY;}});
+renderer.domElement.addEventListener('mouseup',e=>{if(e.button>=1)cam.drag=false;});
+renderer.domElement.addEventListener('contextmenu',e=>e.preventDefault());
+renderer.domElement.addEventListener('wheel',e=>{cam.r=Math.max(6,Math.min(78,cam.r+e.deltaY*.04));updCam();});
+renderer.domElement.addEventListener('mousemove',e=>{
+  mouse.x=(e.clientX/innerWidth)*2-1;mouse.y=-(e.clientY/innerHeight)*2+1;
+  if(cam.drag){cam.theta-=(e.clientX-cam.lx)*.01;cam.phi=Math.max(.18,Math.min(Math.PI/2-.04,cam.phi+(e.clientY-cam.ly)*.005));cam.lx=e.clientX;cam.ly=e.clientY;updCam();return;}
+  if(S.selBuild&&!S.bdz){
+    ray.setFromCamera(mouse,camera);const hits=ray.intersectObject(gnd);
+    if(hits.length){const{cx,cz}=w2c(hits[0].point.x,hits[0].point.z);
+      if(cx>=0&&cx<GS&&cz>=0&&cz<GS){
+        const d=BD[S.selBuild];const p=c2w(cx,cz);
+        prev.position.set(p.x,d.ht/2+.05,p.z);prev.scale.set(1,Math.max(.5,d.ht),1);prev.visible=true;
+        prev.material.color.setHex(S.grid[`${cx},${cz}`]?0xff4466:0x00cfff);
+      }}else prev.visible=false;
+  }else prev.visible=false;
+});
+renderer.domElement.addEventListener('click',e=>{
+  if(e.button!==0||S.pending)return;
+  ray.setFromCamera(mouse,camera);const hits=ray.intersectObject(gnd);if(!hits.length)return;
+  const{cx,cz}=w2c(hits[0].point.x,hits[0].point.z);
+  if(S.bdz){demolAt(cx,cz);}
+  else if(S.selBuild){buildAt(cx,cz);}
+  else{const k=`${cx},${cz}`;if(S.grid[k])showSel(S.grid[k]);else hideSel();}
+});
+document.addEventListener('keydown',e=>{cam.keys[e.key.toLowerCase()]=true;if(e.key==='Escape'){hideSel();selB(null,null);}});
+document.addEventListener('keyup',e=>{cam.keys[e.key.toLowerCase()]=false;});
+function handleKeys(){
+  const sp=.14,fwd=new THREE.Vector3(Math.sin(cam.theta),0,Math.cos(cam.theta));
+  const rgt=new THREE.Vector3().crossVectors(new THREE.Vector3(0,1,0),fwd).normalize();
+  if(cam.keys['w']||cam.keys['arrowup'])cam.target.addScaledVector(fwd,sp);
+  if(cam.keys['s']||cam.keys['arrowdown'])cam.target.addScaledVector(fwd,-sp);
+  if(cam.keys['a']||cam.keys['arrowleft'])cam.target.addScaledVector(rgt,sp);
+  if(cam.keys['d']||cam.keys['arrowright'])cam.target.addScaledVector(rgt,-sp);
+  cam.target.x=Math.max(-HL,Math.min(HL,cam.target.x));cam.target.z=Math.max(-HL,Math.min(HL,cam.target.z));
+  updCam();
+}
+
+// UI
+let actBtn=null;
+function selB(btn,type){
+  if(S.bdz)togBdz();
+  if(actBtn)actBtn.classList.remove('active');
+  if(actBtn===btn){actBtn=null;S.selBuild=null;clearRings();return;}
+  actBtn=btn;if(btn)btn.classList.add('active');S.selBuild=type;hideSel();clearRings();
+}
+function togBdz(){
+  S.bdz=!S.bdz;document.getElementById('bdz').classList.toggle('active',S.bdz);
+  if(S.bdz&&actBtn){actBtn.classList.remove('active');actBtn=null;S.selBuild=null;}
+}
+const SPLBLS=['PAUSADO','NORMAL','RÁPIDO','ULTRA'];
+function setSp(s){S.speed=s;[0,1,2,3].forEach(i=>document.getElementById(`sp${i}`).classList.toggle('active',i===s));document.getElementById('sl2').textContent=SPLBLS[s];}
+function showSel(cell){
+  const d=BD[cell.type];
+  document.getElementById('ip').style.display='none';
+  document.getElementById('selp').style.display='block';
+  document.getElementById('stit').textContent=d.n;
+  const isR=d.pc>0;
+  document.getElementById('sdesc').innerHTML=
+    `Celda:(${cell.cx},${cell.cz}) cat:${d.cat}<br>`+
+    (isR?`Población: ${cell.pop||0}/${d.pc} (${Math.round((cell.pop||0)/d.pc*100)}%)<br>`:'')+
+    `⚡:${cell.pow?'✅':'❌'} 💧:${cell.wat?'✅':'❌'}`;
+  if(d.ar>0)showRing(cell.cx,cell.cz,d.ar,d.pr[0]>0?0xffcc00:0x44aaff);
+  document.getElementById('sstat').innerHTML=`
+    <div class="sr"><span class="sl">Coste</span><span class="sv">💰${d.cost}</span></div>
+    ${d.pc?`<div class="sr"><span class="sl">Capacidad</span><span class="sv">👥${d.pc}</span></div>`:''}
+    ${d.pr[0]?`<div class="sr"><span class="sl">⚡ prod. (r:${d.ar})</span><span class="sv">+${d.pr[0]}</span></div>`:''}
+    ${d.pr[1]?`<div class="sr"><span class="sl">💧 prod. (r:${d.ar})</span><span class="sv">+${d.pr[1]}</span></div>`:''}
+    ${d.pr[2]?`<div class="sr"><span class="sl">🌾 prod.</span><span class="sv">+${d.pr[2]}</span></div>`:''}
+    <div class="sr"><span class="sl">Bienestar</span><span class="sv">${d.hap>=0?'+':''}${d.hap}</span></div>
+    <div class="sr"><span class="sl">Ingr./año</span><span class="sv">${d.inc>=0?'+':''}${d.inc}</span></div>
+    ${d.def?`<div class="sr"><span class="sl">Defensa</span><span class="sv">+${d.def}</span></div>`:''}
+    ${d.tch?`<div class="sr"><span class="sl">Tecnología</span><span class="sv">+${d.tch}</span></div>`:''}
+  `;
+}
+function hideSel(){document.getElementById('ip').style.display='block';document.getElementById('selp').style.display='none';clearRings();}
+function nt(msg,type=''){
+  const el=document.createElement('div');el.className='nt'+(type?' '+type:'');el.textContent=msg;
+  document.getElementById('nots').appendChild(el);setTimeout(()=>el.remove(),3200);
+}
+
+// ANIMATE WINDMILLS
+function animWM(t){
+  for(const k in S.grid){
+    const c=S.grid[k];if(c.type!=='windmill')continue;
+    c.mesh.children.forEach((ch,i)=>{if(i>0)ch.rotation.z=t*.002;});
+  }
+}
+
+// LOOP
+let lastT=performance.now();
+function loop(){
+  requestAnimationFrame(loop);
+  const now=performance.now(),dt=now-lastT;lastT=now;
+  handleKeys();tick(dt);animWM(now);
+  if(prev.visible)prev.material.opacity=.28+.14*Math.sin(now*.005);
+  renderer.render(scene,camera);
+}
+
+// INIT
+updCam();
+// Decorative trees
+for(let i=0;i<28;i++){
+  let cx,cz;
+  if(Math.random()<.5){cx=rn(0,3)+(Math.random()>.5?GS-4:0);cz=rn(0,GS-1);}
+  else{cz=rn(0,3)+(Math.random()>.5?GS-4:0);cx=rn(0,GS-1);}
+  const k=`${cx},${cz}`;
+  if(!S.grid[k]){
+    const tr=new THREE.Group();
+    const tn=new THREE.Mesh(new THREE.CylinderGeometry(.05,.08,.4,6),new THREE.MeshLambertMaterial({color:0x3d2208}));tn.position.y=.2;tr.add(tn);
+    const cr=new THREE.Mesh(new THREE.ConeGeometry(.28+Math.random()*.12,.7,6),new THREE.MeshLambertMaterial({color:0x1a5c2a+rn(0,5)*0x010000}));cr.position.y=.75;tr.add(cr);
+    const p=c2w(cx,cz);tr.position.set(p.x,0,p.z);scene.add(tr);
+  }
+}
+recalcStats();updateHUD();
+window.addEventListener('resize',()=>{camera.aspect=innerWidth/innerHeight;camera.updateProjectionMatrix();renderer.setSize(innerWidth,innerHeight);});
+nt('🏛️ ¡Bienvenido a NationCraft 3D! Clic derecho=rotar | WASD=mover');
+setTimeout(()=>nt('💡 Casas necesitan ⚡ENERGÍA y 💧AGUA cercanos para poblarse'),1800);
+setTimeout(()=>nt('🌀 Eventos aleatorios cada 15-25 años. Construye defensa y hospitales!'),3800);
+loop();
+</script>
+</body>
+</html>
